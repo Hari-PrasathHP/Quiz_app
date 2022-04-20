@@ -20,7 +20,7 @@ import java.util.List;
 
 @WebServlet(urlPatterns = {"/submit"})
 public class SubmitController extends HttpServlet {
-    private static final Logger logger = LogManager.getLogger(com.ps.controller.SubmitController.class);
+    private static final Logger logger = LogManager.getLogger(SubmitController.class);
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
@@ -39,9 +39,7 @@ public class SubmitController extends HttpServlet {
                 logger.info("got the answer id from client to calculate the mark" + ids);
             }
             jsonReader.endObject();
-//            PrintWriter writer1 = resp.getWriter();
-//            writer1.write(String.valueOf(ids));
-//            writer1.flush();
+
             SubmitService submitService = new SubmitService();
             int mark = submitService.getMark(ids);
             logger.info(mark);

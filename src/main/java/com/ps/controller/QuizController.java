@@ -1,31 +1,48 @@
 package com.ps.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.ps.domain.Question;
 import com.ps.domain.Quiz;
+import com.ps.service.QuestionService;
 import com.ps.service.QuizService;
+import com.ps.service.SubmitService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 
-@WebServlet(urlPatterns = {"/quiz"})
-public class QuizController extends HttpServlet {
+@Controller
+@RequestMapping("/quiz")
+public class QuizController  {
     private static final Logger logger = LogManager.getLogger(com.ps.controller.QuizController.class);
 
-    @Override
+    @Autowired
+    private SubmitService submitService;
+
+    @Autowired
+    private QuizService quizService;
+
+    @Autowired
+    private QuestionService questionService;
+
+
+    @PostMapping
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         logger.info("it is in do post quiz creation method");
         try (JsonReader jsonReader = new JsonReader(req.getReader())) {
@@ -36,7 +53,6 @@ public class QuizController extends HttpServlet {
                     || String.valueOf(quiz.getSubject()).equals("BIOLOGY")
                     || String.valueOf(quiz.getSubject()).equals("PHYSICS")) && (String.valueOf(quiz.getDifficulty()).equals("BEGINNER")
                     || String.valueOf(quiz.getDifficulty()).equals("INTERMEDIATE") || String.valueOf(quiz.getDifficulty()).equals("ADVANCED"))) {
-                QuizService quizService = new QuizService();
                 Quiz quiz1 = quizService.createQuiz(quiz);
                 quiz1.setQuestions(null);
                 String userToString = new Gson().toJson(quiz1);
@@ -65,12 +81,12 @@ public class QuizController extends HttpServlet {
     }
 
 
-    @Override
+@PutMapping
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("getting into the do put method" + req);
         try (JsonReader jsonReader = new JsonReader(req.getReader())) {
             Quiz quiz = new Gson().fromJson(jsonReader, Quiz.class);
-            QuizService quizService = new QuizService();
+
             quizService.updateQuiz(quiz);
             resp.setStatus(200);
             logger.info(quiz.getQuestions());
@@ -87,12 +103,11 @@ public class QuizController extends HttpServlet {
         }
 
     }
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
-        String subject = (req.getParameter("subject"));
-        String difficulty = (req.getParameter("difficulty"));
-        logger.info("got request from the client for retrieving list of questions by quiz id:" + subject);
-        QuizService quizService = new QuizService();
+
+    @GetMapping("/list")
+    public void getQuizList(@RequestParam("subject") String subject,@RequestParam("difficulty") String difficulty,HttpServletResponse resp) {
+        logger.info("got request from the client for retrieving list of quiz  :" + subject+" "+difficulty);
+
         try {
             List<Quiz> quizList = quizService.getQuizBySubject(subject, difficulty);
             for (Quiz quiz : quizList) {
@@ -112,13 +127,12 @@ public class QuizController extends HttpServlet {
         }
     }
 
-    @Override
+    @DeleteMapping
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try (InputStream inputStream = req.getInputStream()) {
             try (javax.json.JsonReader jsonReader = Json.createReader(inputStream)) {
                 JsonObject jsonObject = jsonReader.readObject();
                 UUID id = UUID.fromString(jsonObject.getString("id"));
-                QuizService quizService = new QuizService();
                 quizService.deleteQuiz(id);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -131,7 +145,6 @@ public class QuizController extends HttpServlet {
         }
     }
 
-    @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         setAccessControlHeaders(resp);
         resp.setStatus(HttpServletResponse.SC_OK);
@@ -142,6 +155,61 @@ public class QuizController extends HttpServlet {
         response.setHeader("Access-Control-Allow-Methods","GET");
     }
 
+
+    @GetMapping("/question")
+    public void getQuestionAnswerById(@RequestParam("id") UUID id, HttpServletResponse resp) {
+        logger.info("got request from the client for retrieving list of questions by quiz id:" + id);
+
+        try {
+            List<Question> questionList = questionService.getQuestionById(id);
+            logger.info(questionList);
+            Gson gson=new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+            String usersToSting = gson.toJson(questionList);
+            logger.info("the json returning is:"+usersToSting);
+            PrintWriter writer = resp.getWriter();
+            resp.setContentType("application/json");
+            writer.write(usersToSting);
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.error(e);
+            logger.catching(e);
+        }
+    }
+
+    @PostMapping("/mark")
+    protected void getMark(HttpServletRequest req, HttpServletResponse resp) {
+        logger.info("inside do post submit controller");
+        try (JsonReader jsonReader = new JsonReader(req.getReader())) {
+            List<String> ids = new ArrayList<>();
+            jsonReader.beginObject();
+            String name = jsonReader.nextName();
+            if (jsonReader.peek() != JsonToken.NULL) {
+                jsonReader.beginArray();
+                while (jsonReader.hasNext()) {
+                    logger.info("it is getting added to the list");
+                    ids.add(jsonReader.nextString());
+                }
+                jsonReader.endArray();
+                logger.info("got the answer id from client to calculate the mark" + ids);
+            }
+            jsonReader.endObject();
+
+            int mark = submitService.getMark(ids);
+            logger.info(mark);
+            String usersToSting = new Gson().toJson(mark);
+            setAccessControlHeaders(resp);
+            PrintWriter writer = resp.getWriter();
+            resp.setContentType("application/json");
+            writer.write(usersToSting);
+            writer.flush();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e);
+            logger.catching(e);
+        }
+    }
 }
 
 

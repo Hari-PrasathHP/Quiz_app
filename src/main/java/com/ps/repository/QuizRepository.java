@@ -2,9 +2,11 @@ package com.ps.repository;
 
 import com.ps.domain.Question;
 import com.ps.domain.Quiz;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
+
 
 public interface QuizRepository {
     Quiz createQuiz(Quiz quiz);

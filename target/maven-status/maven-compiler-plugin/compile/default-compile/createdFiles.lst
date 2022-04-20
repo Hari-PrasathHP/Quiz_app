@@ -14,5 +14,4 @@ com\ps\repository\QuizRepositoryImpl.class
 com\ps\repository\QuestionRepositoryImpl.class
 com\ps\repository\QuestionRepository.class
 com\ps\repository\SubmitRepositoryImpl.class
-com\ps\controller\QuestionController.class
 com\ps\domain\Subject.class
