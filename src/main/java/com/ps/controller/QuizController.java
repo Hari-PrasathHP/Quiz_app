@@ -6,7 +6,6 @@ import com.ps.domain.Quiz;
 import com.ps.service.QuizService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.servlet.ServletException;
