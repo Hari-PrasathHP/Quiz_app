@@ -15,6 +15,9 @@
            Duration: <li>${quiz.duration}</li>
            Subject: <li>${quiz.subject}</li>
             Difficulty: <li>${quiz.difficulty}</li>
+            <%
+            out.println("<a href='http://localhost:8080/QA-1.0-SNAPSHOT/"+quiz.id+"' />");
+            %>
         </c:forEach>
 
     </ul>
