@@ -1,10 +1,6 @@
-E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\domain\InsertDemo.java
 E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\repository\QuestionRepositoryImpl.java
-E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\controller\QuestionController.java
 E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\service\QuestionService.java
 E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\domain\Question.java
-E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\helper\SessionHelper.java
-E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\controller\SubmitController.java
 E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\domain\Difficulty.java
 E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\repository\QuestionRepository.java
 E:\javaprograms\Quiz_App_hibernate\QA\src\main\java\com\ps\repository\SubmitRepositoryImpl.java

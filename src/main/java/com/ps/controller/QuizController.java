@@ -1,7 +1,7 @@
 package com.ps.controller;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.ps.domain.Question;
@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -43,7 +44,7 @@ public class QuizController  {
 
 
     @PostMapping
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void createQuiz(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         logger.info("it is in do post quiz creation method");
         try (JsonReader jsonReader = new JsonReader(req.getReader())) {
 
@@ -82,7 +83,7 @@ public class QuizController  {
 
 
 @PutMapping
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+    protected void quizUpdation(HttpServletRequest req, HttpServletResponse resp) {
         logger.info("getting into the do put method" + req);
         try (JsonReader jsonReader = new JsonReader(req.getReader())) {
             Quiz quiz = new Gson().fromJson(jsonReader, Quiz.class);
@@ -104,8 +105,8 @@ public class QuizController  {
 
     }
 
-    @GetMapping("/list")
-    public void getQuizList(@RequestParam("subject") String subject,@RequestParam("difficulty") String difficulty,HttpServletResponse resp) {
+    @RequestMapping("/list")
+    public String getQuizList( @RequestParam("subject") String subject, @RequestParam("difficulty") String difficulty, Model model) {
         logger.info("got request from the client for retrieving list of quiz  :" + subject+" "+difficulty);
 
         try {
@@ -113,22 +114,17 @@ public class QuizController  {
             for (Quiz quiz : quizList) {
                 quiz.setQuestions(null);
             }
-
-            String usersToSting = new Gson().toJson(quizList);
-            setAccessControlHeaders(resp);
-            PrintWriter writer = resp.getWriter();
-            resp.setContentType("application/json");
-            writer.write(usersToSting);
-            writer.flush();
-        } catch (IOException e) {
+            model.addAttribute("quizList",quizList);
+           return "quiz";
+        } catch (Exception e) {
             e.printStackTrace();
             logger.error(e);
             logger.catching(e);
-        }
+        }return null;
     }
 
     @DeleteMapping
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void quizDeletion(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try (InputStream inputStream = req.getInputStream()) {
             try (javax.json.JsonReader jsonReader = Json.createReader(inputStream)) {
                 JsonObject jsonObject = jsonReader.readObject();
@@ -157,24 +153,29 @@ public class QuizController  {
 
 
     @GetMapping("/question")
-    public void getQuestionAnswerById(@RequestParam("id") UUID id, HttpServletResponse resp) {
+    public String getQuestionAnswerById(@RequestParam("id") UUID id,Model model) {
         logger.info("got request from the client for retrieving list of questions by quiz id:" + id);
 
         try {
             List<Question> questionList = questionService.getQuestionById(id);
             logger.info(questionList);
-            Gson gson=new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-            String usersToSting = gson.toJson(questionList);
-            logger.info("the json returning is:"+usersToSting);
-            PrintWriter writer = resp.getWriter();
-            resp.setContentType("application/json");
-            writer.write(usersToSting);
-            writer.flush();
-        } catch (IOException e) {
+//            Gson gson=new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+//            String usersToSting = gson.toJson(questionList);
+//            logger.info("the json returning is:"+usersToSting);
+//            PrintWriter writer = resp.getWriter();
+//            resp.setContentType("application/json");
+//            writer.write(usersToSting);
+//            writer.flush();
+
+            model.addAttribute("questionList",questionList);
+            return "question";
+
+        } catch (Exception e) {
             e.printStackTrace();
             logger.error(e);
             logger.catching(e);
         }
+        return null;
     }
 
     @PostMapping("/mark")
@@ -209,6 +210,12 @@ public class QuizController  {
             logger.error(e);
             logger.catching(e);
         }
+    }
+
+    @RequestMapping(value = "/createQuiz")
+    public String registeringStudent(Model model){
+        model.addAttribute("quiz",new Quiz());
+        return "createForm";
     }
 }
 

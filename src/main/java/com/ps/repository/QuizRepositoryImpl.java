@@ -2,10 +2,9 @@ package com.ps.repository;
 
 
 import com.ps.domain.*;
-import com.ps.helper.SessionHelper;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;

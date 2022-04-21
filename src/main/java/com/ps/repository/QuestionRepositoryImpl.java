@@ -1,7 +1,7 @@
 package com.ps.repository;
 
 import com.ps.domain.Question;
-import com.ps.helper.SessionHelper;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
