@@ -159,13 +159,7 @@ public class QuizController  {
         try {
             List<Question> questionList = questionService.getQuestionById(id);
             logger.info(questionList);
-//            Gson gson=new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-//            String usersToSting = gson.toJson(questionList);
-//            logger.info("the json returning is:"+usersToSting);
-//            PrintWriter writer = resp.getWriter();
-//            resp.setContentType("application/json");
-//            writer.write(usersToSting);
-//            writer.flush();
+
 
             model.addAttribute("questionList",questionList);
             return "question";
